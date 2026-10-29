@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+*.sqlite
+.cache*
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+*.pkl
+api_key
