@@ -1,8 +1,9 @@
-streamlit==1.10.0
-pandas==1.3.5
-underthesea==1.3.0
-scikit-learn==1.0.2
-requests==2.26.0
-googletrans==4.0.0-rc1
-openpyxl==3.0.9  # Required for reading Excel files
-unidecode==1.4.0  # Required for handling Vietnamese accents
+streamlit==1.66.1
+pandas==3.1.0
+scikit-learn==1.9.1
+underthesea==9.5.0
+openpyxl==3.1.5
+requests==2.34.2
+unidecode==1.4.0
+python-dotenv==1.2.4
+deep-translator==1.11.4
