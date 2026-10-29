@@ -8,8 +8,8 @@ from recommendation import recommend_places
 
 @pytest.fixture(scope="module")
 def model():
-    df = load_and_process_data("data/DataSet.xlsx")
-    tfidf = TfidfVectorizer().fit(df["Mô tả sau tách"])
+    df = load_and_process_data("data/processed/places.csv")
+    tfidf = TfidfVectorizer().fit(df["description_tokens"])
     return df, tfidf
 
 
@@ -24,16 +24,24 @@ def test_preprocess_handles_empty_and_non_string():
 
 def test_dataset_loads_with_descriptions(model):
     df, _ = model
-    assert len(df) > 300
-    assert (df["Mô tả sau tách"].str.strip() != "").all()
+    assert len(df) == 315
+    assert (df["description_tokens"].str.strip() != "").all()
 
 
 def test_recommends_beaches_for_beach_query(model):
     df, tfidf = model
     result = recommend_places("bãi biển hoang sơ để tắm biển", df, tfidf, preprocess_text)
     assert len(result) == 3
-    assert result["Độ tương đồng (%)"].iloc[0] > 0
-    assert result["Mô tả"].str.contains("biển").all()
+    assert result["similarity"].iloc[0] > 0
+    assert result["description"].str.contains("biển").all()
+
+
+def test_province_filter_uses_new_provinces(model):
+    df, tfidf = model
+    result = recommend_places("di tích lịch sử", df, tfidf, preprocess_text, province="Ninh Bình")
+    assert len(result) == 3
+    assert (result["province"] == "Ninh Bình").all()
+    assert set(result["old_province"]) <= {"Ninh Bình", "Hà Nam", "Nam Định"}
 
 
 def test_empty_query_returns_empty_frame(model):

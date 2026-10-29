@@ -44,10 +44,9 @@ def preprocess_text(text):
     return " ".join(tokens) if tokens else ""
 
 
-# Đọc dữ liệu từ file Excel và tiền xử lý
+# Đọc dữ liệu đã làm sạch (scripts/build_dataset.py) và tiền xử lý
 def load_and_process_data(file_path):
-    df = pd.read_excel(file_path)
-    df["Mô tả"] = df["Mô tả"].fillna("").astype(str)
-    df["Mô tả sau tách"] = df["Mô tả"].apply(preprocess_text)
-    df = df[df["Mô tả sau tách"].str.strip() != ""].reset_index(drop=True)
+    df = pd.read_csv(file_path, keep_default_na=False)
+    df["description_tokens"] = df["description"].apply(preprocess_text)
+    df = df[df["description_tokens"].str.strip() != ""].reset_index(drop=True)
     return df

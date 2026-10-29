@@ -1,4 +1,3 @@
-import pandas as pd
 import streamlit as st
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -7,21 +6,25 @@ from recommendation import recommend_places
 from translation import translate_to_vietnamese
 from weather import get_api_key, get_weather
 
-DATA_PATH = "data/DataSet.xlsx"
+DATA_PATH = "data/processed/places.csv"
+ALL_PROVINCES = "Tất cả 34 tỉnh, thành"
 
 
 @st.cache_resource
 def load_model():
     df = load_and_process_data(DATA_PATH)
     tfidf = TfidfVectorizer()
-    tfidf.fit(df["Mô tả sau tách"])
+    tfidf.fit(df["description_tokens"])
     return df, tfidf
 
 
 df, tfidf = load_model()
 
 st.title("Vietnam Travel Recommendation System")
+st.caption("Dữ liệu đã cập nhật theo 34 tỉnh, thành sau sáp nhập (từ 1/7/2025).")
+
 user_input = st.text_area("Nhập mô tả mong muốn của bạn:")
+province = st.selectbox("Tỉnh, thành", [ALL_PROVINCES, *sorted(df["province"].unique())])
 
 if st.button("Tìm kiếm"):
     if not user_input.strip():
@@ -36,22 +39,34 @@ if st.button("Tìm kiếm"):
             else:
                 st.warning("Không dịch được, sẽ tìm kiếm với nội dung gốc.")
 
-        recommendations = recommend_places(user_input, df, tfidf, preprocess_text)
+        recommendations = recommend_places(
+            user_input,
+            df,
+            tfidf,
+            preprocess_text,
+            province=None if province == ALL_PROVINCES else province,
+        )
 
         if recommendations.empty:
             st.write("Không tìm thấy địa điểm phù hợp với yêu cầu của bạn.")
         else:
             show_weather = bool(get_api_key())
             for _, row in recommendations.iterrows():
-                st.subheader(row["Tên địa điểm"])
-                st.write(f"**Mô tả:** {row['Mô tả']}")
+                st.subheader(row["name"])
+                st.write(f"**Mô tả:** {row['description']}")
 
                 with st.expander("Chi tiết"):
                     col1, col2 = st.columns([3, 2])
 
                     with col1:
-                        st.write(f"**Địa chỉ:** {row['Vị trí']}")
-                        weather_info = get_weather(row["Vị trí"]) if show_weather else None
+                        location = row["province"]
+                        if row["old_province"] != row["province"]:
+                            location += f" (trước 7/2025: {row['old_province']})"
+                        st.write(f"**Tỉnh, thành:** {location}")
+                        st.write(f"**Độ tương đồng:** {row['similarity']}%")
+
+                        # The pre-2025 province is closer to the place than the merged one.
+                        weather_info = get_weather(row["old_province"]) if show_weather else None
                         if weather_info:
                             st.write(f"**Nhiệt độ:** {weather_info['temperature']}°C")
                             st.write(f"**Thời tiết:** {weather_info['description']}")
@@ -62,7 +77,7 @@ if st.button("Tìm kiếm"):
                             st.write("Không thể lấy thông tin thời tiết cho địa điểm này.")
 
                     with col2:
-                        if pd.notnull(row["Ảnh"]):
-                            st.image(row["Ảnh"], caption=f"Hình ảnh {row['Tên địa điểm']}", width="stretch")
+                        if row["image_url"]:
+                            st.image(row["image_url"], caption=f"Hình ảnh {row['name']}", width="stretch")
                         else:
                             st.write("Không có hình ảnh cho địa điểm này.")

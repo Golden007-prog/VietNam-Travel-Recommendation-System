@@ -6,7 +6,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py data_processing.py recommendation.py translation.py weather.py ./
-COPY data/DataSet.xlsx data/
+COPY data/processed/places.csv data/processed/
 
 EXPOSE 8501
 
