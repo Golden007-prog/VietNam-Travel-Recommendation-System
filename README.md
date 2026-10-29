@@ -6,10 +6,10 @@ The Vietnam Travel Recommendation System is a web application built using Stream
 
 ## Features
 
-- **Keyword-Based Recommendations:** Users can input three keywords to receive tailored travel destination suggestions.
+- **Description-Based Recommendations:** Users describe the trip they want and get the three most similar destinations (TF-IDF + cosine similarity).
 - **Weather Information:** The application fetches real-time weather data for the recommended locations.
 - **Image Display:** Each recommended location is accompanied by an image for better visualization.
-- **Vietnamese Language Support:** The application includes Vietnamese translations for weather descriptions.
+- **English Input:** English descriptions are translated to Vietnamese before matching; weather descriptions come in Vietnamese from OpenWeatherMap.
 
 ## Technologies Used
 
@@ -19,36 +19,39 @@ The Vietnam Travel Recommendation System is a web application built using Stream
 - **Natural Language Processing:** Underthesea (for Vietnamese word tokenization)
 - **Machine Learning:** Scikit-learn (for TF-IDF and cosine similarity)
 - **API Requests:** Requests (for fetching weather data)
-- **Translation:** Google Translate API (for translating weather descriptions)
+- **Translation:** deep-translator (English input to Vietnamese)
 
 ## Installation
 
-To set up the project locally, follow these steps:
+Requires Python 3.11+.
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/HongTin2104/VietNam-Travel-Recommendation-System.git
-   cd VietNam-Travel-Recommendation-System
+```bash
+git clone https://github.com/HongTin2104/VietNam-Travel-Recommendation-System.git
+cd VietNam-Travel-Recommendation-System
+pip install -r requirements.txt
+streamlit run main.py
+```
 
-2. Install the required packages:
-    ```bash
-    pip install -r requirements.txt
+Then open http://localhost:8501 and describe the trip you want (for example "bãi biển hoang sơ để tắm biển").
+English input is translated to Vietnamese before matching.
 
-3. Obtain an API key from OpenWeatherMap and save it in a file named api_key in the root directory.
+Weather is optional. To enable it, get a free key from
+[OpenWeatherMap](https://home.openweathermap.org/api_keys), copy `.env.example` to `.env` and set
+`OPENWEATHER_API_KEY`. Never commit `.env`.
 
-4. Prepare your data:
-- Ensure you have an Excel data file named data.xlsx in the root directory, containing a column named "Mô tả" for descriptions of the travel destinations.
+### Docker
 
+```bash
+docker build -t vietnam-travel .
+docker run --env-file .env -p 8501:8501 vietnam-travel
+```
 
-## Usage
+### Tests
 
-1. Run the application:
-    ```bash
-    streamlit run app.py
-
-2. Open your web browser and navigate to http://localhost:8501 to access the application.
-
-3. Enter three keywords related to your interests (e.g., beach, mountain, culture) and click "Submit" to receive recommendations.
+```bash
+pip install pytest ruff
+ruff check . && pytest
+```
 
 ## Example
 
