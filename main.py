@@ -1,7 +1,6 @@
 import streamlit as st
-from sklearn.feature_extraction.text import TfidfVectorizer
 
-from data_processing import load_and_process_data, preprocess_text
+from data_processing import build_features, build_vectorizer, load_and_process_data
 from recommendation import recommend_places
 from translation import translate_to_vietnamese
 from weather import get_api_key, get_weather
@@ -13,8 +12,7 @@ ALL_PROVINCES = "Tất cả 34 tỉnh, thành"
 @st.cache_resource
 def load_model():
     df = load_and_process_data(DATA_PATH)
-    tfidf = TfidfVectorizer()
-    tfidf.fit(df["description_tokens"])
+    tfidf = build_vectorizer().fit(df["description_tokens"])
     return df, tfidf
 
 
@@ -43,7 +41,7 @@ if st.button("Tìm kiếm"):
             user_input,
             df,
             tfidf,
-            preprocess_text,
+            build_features,
             province=None if province == ALL_PROVINCES else province,
         )
 
