@@ -96,9 +96,11 @@ docker run --env-file .env -p 8501:8501 vietnam-travel
 Tests and lint:
 
 ```bash
-pip install pytest ruff
-ruff check . && pytest
+pip install pytest pytest-cov ruff
+ruff check . && pytest --cov
 ```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
 ## Project structure
 
