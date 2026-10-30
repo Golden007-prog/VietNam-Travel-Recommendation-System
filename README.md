@@ -142,6 +142,8 @@ same evaluation, and filters for region or season.
 
 Repo này phù hợp làm tài liệu tham khảo cho đồ án môn Khai phá dữ liệu, Xử lý ngôn ngữ tự nhiên hoặc Hệ gợi ý.
 Dùng thử ngay trên trình duyệt: https://vietnam-travel-recsys.streamlit.app/
+Bài viết giải thích chi tiết (Viblo):
+[Gợi ý du lịch Việt Nam bằng TF-IDF và underthesea](https://viblo.asia/p/goi-y-du-lich-viet-nam-bang-tf-idf-va-underthesea-viblo-8X4EjW52JN2)
 
 - **Dữ liệu tự thu thập:** 315 địa điểm của 63 tỉnh cũ, đã ánh xạ sang 34 tỉnh, thành mới từ 1/7/2025
   ([`scripts/province_mapping.py`](scripts/province_mapping.py)). Có thể dùng lại bảng ánh xạ này cho dự án khác.
