@@ -8,3 +8,12 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.coverage.run]
+source = ["."]
+omit = ["tests/*", ".venv/*"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 70
+show_missing = true
