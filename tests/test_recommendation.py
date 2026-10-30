@@ -52,3 +52,17 @@ def test_empty_query_returns_empty_frame(model):
     result = recommend_places("!!!", df, tfidf, build_features)
     assert isinstance(result, pd.DataFrame)
     assert result.empty
+
+
+def test_unknown_province_returns_empty_frame(model):
+    df, tfidf = model
+    result = recommend_places("di tích lịch sử", df, tfidf, build_features, province="Atlantis")
+    assert result.empty
+    assert list(result.columns) == ["name", "description", "similarity", "province", "old_province", "image_url"]
+
+
+def test_results_are_sorted_by_similarity(model):
+    df, tfidf = model
+    result = recommend_places("chùa cổ", df, tfidf, build_features, num_recommendations=5)
+    assert len(result) == 5
+    assert result["similarity"].is_monotonic_decreasing

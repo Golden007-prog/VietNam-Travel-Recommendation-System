@@ -1,11 +1,21 @@
 import sys
+import unicodedata
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 
-from build_dataset import build, parse_keywords, parse_rating  # noqa: E402
+import build_dataset  # noqa: E402
+from build_dataset import (  # noqa: E402
+    build,
+    clean_image_url,
+    clean_text,
+    load_short_links,
+    parse_keywords,
+    parse_rating,
+)
 from province_mapping import MERGERS, NEW_PROVINCES, OLD_TO_NEW  # noqa: E402
 
 
@@ -44,3 +54,65 @@ def test_processed_csv_is_up_to_date():
     assert actual["province"].nunique() == 34
     assert list(actual["province"]) == list(expected["province"])
     assert list(actual["name"]) == list(expected["name"])
+
+
+def test_clean_text_composes_unicode_and_collapses_whitespace():
+    decomposed = unicodedata.normalize("NFD", "  Hòa   Bình  ")
+    assert clean_text(decomposed) == "Hòa Bình"
+    assert clean_text(None) == ""
+
+
+def test_clean_image_url_resolves_short_links_and_drops_bad_urls():
+    short = {"https://surl.li/abc": "https://cdn.vn/a.jpg", "https://surl.li/dead": ""}
+    assert clean_image_url(" https://surl.li/abc ", short) == "https://cdn.vn/a.jpg"
+    assert clean_image_url("https://surl.li/dead", short) == ""
+    assert clean_image_url("https://surl.li/unknown", short) == ""
+    assert clean_image_url("ảnh đẹp", short) == ""
+    assert clean_image_url(None, short) == ""
+
+
+def test_load_short_links_without_the_file_is_empty(tmp_path):
+    assert load_short_links(tmp_path / "missing.csv") == {}
+
+
+def raw_rows(**overrides):
+    row = {
+        "STT": 1,
+        "Tên địa điểm": "Hồ Ba Bể",
+        "Vị trí": "Bắc Kạn",
+        "Mô tả": "Hồ nước ngọt tự nhiên.",
+        "Đánh giá": "4,6/5",
+        "Từ Khóa": "hồ, thiên nhiên",
+        "Ảnh": "https://cdn.vn/ba-be.jpg",
+        **overrides,
+    }
+    return pd.DataFrame([row])
+
+
+def test_build_fixes_province_typos_and_maps_to_the_new_province(tmp_path):
+    source = tmp_path / "DataSet.xlsx"
+    raw_rows(**{"Vị trí": "Nam Đinh"}).to_excel(source, index=False)
+    place = build(source).iloc[0]
+    assert (place["old_province"], place["province"]) == ("Nam Định", "Ninh Bình")
+    assert place["rating"] == 4.6
+
+
+def test_build_rejects_unknown_provinces(tmp_path):
+    source = tmp_path / "DataSet.xlsx"
+    raw_rows(**{"Vị trí": "Atlantis"}).to_excel(source, index=False)
+    with pytest.raises(ValueError, match="Atlantis"):
+        build(source)
+
+
+def test_main_writes_the_processed_csv(tmp_path, monkeypatch, capsys):
+    output = tmp_path / "data" / "processed" / "places.csv"
+    monkeypatch.setattr(build_dataset, "ROOT", tmp_path)
+    monkeypatch.setattr(build_dataset, "OUTPUT", output)
+    places = pd.DataFrame({"name": ["Hồ Ba Bể", "Tràng An"], "province": ["Thái Nguyên", "Ninh Bình"]})
+    monkeypatch.setattr(build_dataset, "build", lambda: places)
+
+    build_dataset.main()
+
+    assert pd.read_csv(output).equals(places)
+    expected = f"2 places, 2 provinces -> {Path('data/processed/places.csv')}"
+    assert capsys.readouterr().out.strip() == expected

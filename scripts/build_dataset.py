@@ -75,8 +75,12 @@ def build(source=SOURCE):
     )
 
 
-if __name__ == "__main__":
+def main():
     places = build()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     places.to_csv(OUTPUT, index=False, encoding="utf-8", lineterminator="\n")
     print(f"{len(places)} places, {places['province'].nunique()} provinces -> {OUTPUT.relative_to(ROOT)}")
+
+
+if __name__ == "__main__":
+    main()
