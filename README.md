@@ -1,9 +1,13 @@
 # Vietnam Travel Recommendation System
 
 [![CI](https://github.com/HongTin2104/VietNam-Travel-Recommendation-System/actions/workflows/ci.yml/badge.svg)](https://github.com/HongTin2104/VietNam-Travel-Recommendation-System/actions/workflows/ci.yml)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://vietnam-travel-recsys.streamlit.app/)
 
 Describe the trip you want in Vietnamese or English and get matching destinations from a hand-built dataset of
 315 places, organised by the 34 provinces in effect since July 2025.
+
+**Try it online: [vietnam-travel-recsys.streamlit.app](https://vietnam-travel-recsys.streamlit.app/)** (no install
+needed; the app may take a few seconds to wake up if nobody has used it recently).
 
 ![Demo: a query for a quiet beach with coral reefs returns Kỳ Co, Bãi Dài Cam Ranh and Hòn Yến](docs/demo.png)
 
@@ -137,6 +141,7 @@ same evaluation, and filters for region or season.
 ## Dành cho sinh viên
 
 Repo này phù hợp làm tài liệu tham khảo cho đồ án môn Khai phá dữ liệu, Xử lý ngôn ngữ tự nhiên hoặc Hệ gợi ý.
+Dùng thử ngay trên trình duyệt: https://vietnam-travel-recsys.streamlit.app/
 
 - **Dữ liệu tự thu thập:** 315 địa điểm của 63 tỉnh cũ, đã ánh xạ sang 34 tỉnh, thành mới từ 1/7/2025
   ([`scripts/province_mapping.py`](scripts/province_mapping.py)). Có thể dùng lại bảng ánh xạ này cho dự án khác.
